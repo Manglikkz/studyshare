@@ -1,4 +1,4 @@
-// script.js - FINAL ROBUST VERSION
+// src/script.js - FINAL ROBUST VERSION
 
 // ====================================================
 // UI UTILITY CLASSES (Ditaruh di atas agar siap dipakai)
@@ -874,18 +874,48 @@ function setupImagePreview() {
   }
 }
 
+function compressImage(file, maxWidth = 800, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        // Hitung rasio aspek baru
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert ke Base64 dengan kualitas lebih rendah (JPG)
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+}
+
 async function handleUpload(e) {
   e.preventDefault();
 
-  // Ambil value dari form
   const title = document.getElementById("noteTitle").value;
   const subj = document.getElementById("noteSubject").value;
   const content = document.getElementById("noteContent").value;
-  const auth = document.getElementById("authorName").value; // Nama Penulis
+  const auth = document.getElementById("authorName").value;
   const fileInput = document.getElementById("noteImage");
   const file = fileInput ? fileInput.files[0] : null;
 
-  // VALIDASI: Pastikan semua field terisi (termasuk Nama)
   if (!title || !subj || !content || !auth) {
     return CustomAlert.show(
       "Harap isi Judul, Mata Pelajaran, Konten, dan Nama Penulis!",
@@ -893,45 +923,39 @@ async function handleUpload(e) {
     );
   }
 
-  LoadingSpinner.show("Mengupload catatan...");
+  LoadingSpinner.show("Mengompres & Mengupload...");
 
-  const processUpload = async (imageData) => {
-    try {
-      // Kirim ke database (author wajib terisi)
-      await notesManager.addNote(title, subj, content, auth, imageData);
+  try {
+    let imageData = null;
 
-      LoadingSpinner.hide();
-      CustomAlert.show("Berhasil upload!", "success");
-
-      // Tampilkan pesan sukses UI
-      const successMsg = document.getElementById("uploadSuccess");
-      if (successMsg) successMsg.classList.add("show");
-
-      // Reset form
-      e.target.reset();
-
-      // Reset tampilan gambar
-      document.getElementById("imagePreview").style.display = "none";
-      document.getElementById("uploadPlaceholder").style.display = "block";
-      const removeBtn = document.getElementById("removeImageBtn");
-      if (removeBtn) removeBtn.style.display = "none";
-    } catch (err) {
-      LoadingSpinner.hide();
-      CustomAlert.show("Gagal Upload: " + err.message, "error");
+    // JIKA ADA FILE, KOMPRES DULU
+    if (file) {
+      // Validasi ukuran awal (turunkan jadi 4MB agar aman)
+      if (file.size > 4 * 1024 * 1024) {
+        throw new Error("Ukuran file terlalu besar! Maksimal 4MB.");
+      }
+      // Lakukan kompresi (resize ke lebar 800px, kualitas 70%)
+      imageData = await compressImage(file, 800, 0.7);
     }
-  };
 
-  // Proses konversi gambar ke Base64 jika ada
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (ev) => processUpload(ev.target.result);
-    reader.onerror = () => {
-      LoadingSpinner.hide();
-      CustomAlert.show("Gagal membaca file gambar", "error");
-    };
-    reader.readAsDataURL(file);
-  } else {
-    processUpload(null); // Upload tanpa gambar
+    // Kirim ke database
+    await notesManager.addNote(title, subj, content, auth, imageData);
+
+    LoadingSpinner.hide();
+    CustomAlert.show("Berhasil upload!", "success");
+
+    const successMsg = document.getElementById("uploadSuccess");
+    if (successMsg) successMsg.classList.add("show");
+
+    e.target.reset();
+    document.getElementById("imagePreview").style.display = "none";
+    document.getElementById("uploadPlaceholder").style.display = "block";
+    const removeBtn = document.getElementById("removeImageBtn");
+    if (removeBtn) removeBtn.style.display = "none";
+  } catch (err) {
+    LoadingSpinner.hide();
+    console.error("Upload Error:", err); // Cek console browser
+    CustomAlert.show("Gagal Upload: " + err.message, "error");
   }
 }
 
@@ -1041,3 +1065,4 @@ function closePromoModal() {
 }
 
 window.closePromoModal = closePromoModal;
+
