@@ -1,0 +1,297 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CatatanKolaboratif - Berbagi Catatan Pelajaran</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Load Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="images/logo.png.jpg" alt="Logo" class="logo-img">
+                <div class="logo-text">
+                    <h1>Study<span>Share</span></h1>
+                    <small>Belajar Bersama</small>
+                </div>
+            </div>
+            <nav>
+                <a href="index.html" class="nav-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    Beranda
+                </a>
+                <a href="upload.html" class="nav-link btn-nav-cta">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    Upload
+                </a>
+                <a href="admin.html" class="nav-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Admin
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Modern Hero Section -->
+        <section class="hero-modern">
+            <div class="hero-content">
+                <h2>Temukan Catatan Pelajaran Terbaik</h2>
+                <p>Platform berbagi catatan pelajaran secara gratis. Upload, pelajari, belajar dan berkolaborasi dengan siswa lain!</p>
+                
+                <div class="hero-stats-modern">
+                    <div class="stat-item">
+                        <span id="totalNotesCount">0</span>
+                        <small>Total Catatan</small>
+                    </div>
+                    <div class="stat-item">
+                        <span id="totalSubjectsCount">0</span>
+                        <small>Mata Pelajaran</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Content Button (Hamburger Menu) -->
+        <div class="featured-menu-container">
+            <button id="featuredMenuBtn" class="featured-menu-btn">
+                <span class="menu-icon">☰</span>
+                <span class="menu-text">Featured Content</span>
+            </button>
+        </div>
+
+        <!-- Featured Content Section (Hidden by default) -->
+        <section id="featuredSection" class="featured-section" style="display: none;">
+            <div class="featured-header">
+                <h2 class="section-title">Featured Content</h2>
+                <button class="close-featured-btn" onclick="toggleFeaturedSection()">
+                    ✕
+                </button>
+            </div>
+            
+            <div class="featured-content">
+                <!-- Note of the Day -->
+                <div class="featured-card note-of-day">
+                    <div class="featured-badge">Note of the Day</div>
+                    <div id="noteOfDayContainer">
+                        <div class="empty-state">
+                            <p>Loading catatan hari ini...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trending Section Only (Editor's Pick dihapus) -->
+                <div class="featured-grid">
+                    <div class="trending-section full-width">
+                        <h3>Trending Now</h3>
+                        <div id="trendingContainer" class="trending-list">
+                            <!-- Diisi oleh JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="featured-footer">
+                <button class="btn-secondary" onclick="toggleFeaturedSection()">
+                    Tutup Featured Content
+                </button>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="categories-section">
+            <h2 class="section-title">Jelajahi Kategori</h2>
+            <div class="categories-grid" id="categoriesContainer">
+                <!-- Diisi oleh JavaScript -->
+            </div>
+        </section>
+
+        <!-- Live Activity Section -->
+        <section class="activity-section">
+            <h2 class="section-title">Live Activity</h2>
+            <div id="activityFeed" class="activity-feed">
+                <!-- Diisi oleh JavaScript -->
+            </div>
+        </section>
+
+        <!-- Filter Section -->
+        <section class="filter-section">
+            <div class="filter-header">
+                <h3>Filter & Urutkan</h3>
+            </div>
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="subjectFilter">
+                        Mata Pelajaran:
+                    </label>
+                    <select id="subjectFilter" class="modern-select">
+                        <option value="all">Semua Mata Pelajaran</option>
+                        <option value="bahasa-arab">Bahasa Arab</option>
+                        <option value="nahwu">Nahwu</option>
+                        <option value="shorof">Shorof</option>
+                        <option value="tahfidz">Tahfidz</option>
+                        <option value="tahsin">Tahsin</option>
+                        <option value="aqidah">Aqidah</option>
+                        <option value="fikih">Fikih</option>
+                        <option value="hadits">Hadits</option>
+                        <option value="adab-akhlaq">Adab & Akhlaq</option>
+                        <option value="bahasa-inggris">Bahasa Inggris</option>
+                        <option value="matematika">Matematika</option>
+                        <option value="bootcamp">Bootcamp</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="sortFilter">
+                        Urutkan:
+                    </label>
+                    <select id="sortFilter" class="modern-select">
+                        <option value="likes">Populer</option>
+                        <option value="recent">Terbaru</option>
+                        <option value="oldest">Terlama</option>
+                    </select>
+                </div>
+
+                <button class="refresh-btn" onclick="forceRefreshAll()">
+                    🔄 Refresh Data
+                </button>
+
+                <button class="btn-reset" onclick="resetFilters()">
+                    Reset
+                </button>
+            </div>
+        </section>
+
+        <!-- All Notes Section -->
+        <section id="notesContainer" class="notes-grid">
+            <!-- Catatan akan dimuat di sini -->
+        </section>
+
+        <div id="noNotes" class="no-notes">
+            <div class="empty-state">
+                <h3>Belum Ada Catatan</h3>
+                <p>Jadilah yang pertama membagikan catatan!</p>
+                <a href="upload.html" class="btn-primary">
+                    Upload Catatan Pertama
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <div class="image-modal-content">
+            <img id="modalImage" src="" alt="Preview gambar">
+            <button class="modal-close" onclick="closeImageModal()">×</button>
+            <button class="modal-download" onclick="downloadImage()">
+                Download
+            </button>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Laporkan Masalah</h3>
+                <button class="modal-close" onclick="closeReportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Silakan pilih cara melaporkan:</p>
+                <div class="report-options">
+                    <a href="https://wa.me/6283181438974?text=Halo%20Admin,%20saya%20ingin%20melaporkan%20masalah%20di%20StudyShare:%0A%0AMasalah:%20" 
+                       target="_blank" class="btn-whatsapp">
+                        💬 Laporkan via WhatsApp
+                    </a>
+                    <a href="mailto:StudyShare@gmail.com?subject=Laporan%20Masalah%20StudyShare&body=Halo%20Admin,%0A%0ASaya%20ingin%20melaporkan%20masalah:%0A%0A1.%20Deskripsi%20masalah:%0A2.%20Halaman:%0A3.%20Tanggal:%0A%0ATerima%20kasih." 
+                       class="btn-email">
+                        📧 Laporkan via Email
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <img src="images/logo.png.jpg" alt="Logo CatatanKolaboratif" class="logo-img">
+                        <span>StudyShare</span>
+                    </div>
+                    <p>Platform berbagi catatan pelajaran untuk siswa Itaf.</p>
+                    <div class="contact-info">
+                        <a href="https://wa.me/6283181438974" target="_blank" class="whatsapp-link">
+                            +62 831-8143-8974
+                        </a>
+                        <a href="mailto:StudyShare@gmail.com" class="email-link">
+                            StudyShare@gmail.com
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="index.html" class="footer-link">
+                        Beranda
+                    </a>
+                    <a href="upload.html" class="footer-link">
+                        Upload Catatan
+                    </a>
+                    <a href="admin.html" class="footer-link">
+                        Admin
+                    </a>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <a href="https://wa.me/6283181438974?text=Halo%20StudyShare,%20saya%20mau%20tanya..." target="_blank" class="footer-link">
+                        Chat WhatsApp
+                    </a>
+                    <a href="mailto:StudyShare@gmail.com?subject=Pertanyaan%20StudyShare&body=Halo%20Admin,%20saya%20mau%20tanya..." class="footer-link">
+                        Kirim Email
+                    </a>
+                    <a href="#" class="footer-link" onclick="showReportModal()">
+                        Laporkan Masalah
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 StudyShare. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="promoModal" class="promo-modal">
+        <div class="promo-content">
+            <button class="promo-close" onclick="closePromoModal()">×</button>
+            
+            <div class="promo-image">
+                <img src="images/hadiah.jpeg" alt="hadiah">
+            </div>
+
+            <div class="promo-text">
+                <h3>Selamat Datang di StudyShare! 🎉</h3>
+                <p>Platform kolaborasi catatan terbaik untuk siswa.</p>
+                <ul style="text-align: left; margin: 15px 0; padding-left: 20px; color: #555;">
+                    <li>📚 Akses ribuan catatan gratis</li>
+                    <li>📤 Upload catatanmu & bantu teman</li>
+                    <li>🤝 Diskusi materi yang sulit</li>
+                </ul>
+                <button class="btn-primary" onclick="closePromoModal()">Mulai Belajar Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load config dan script -->
+    <script type="module" src="supabase-config.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
