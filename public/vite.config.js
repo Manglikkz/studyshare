@@ -1,17 +1,16 @@
+// vite.config.js
 import { defineConfig } from "vite";
 import { resolve } from "path";
 
 export default defineConfig({
-  root: ".",
-  publicDir: "public",
   build: {
     rollupOptions: {
       input: {
+        // Daftarkan semua file HTML kamu di sini
         main: resolve(__dirname, "index.html"),
-        admin: resolve(__dirname, "public/admin.html"),
-        upload: resolve(__dirname, "public/upload.html"),
+        upload: resolve(__dirname, "upload.html"),
+        admin: resolve(__dirname, "admin.html"),
       },
     },
-    outDir: "dist",
   },
 });
